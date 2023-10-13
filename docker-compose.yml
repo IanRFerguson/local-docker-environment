@@ -1,0 +1,13 @@
+services:
+  local_parsons_dev:
+    build: 
+      context: ../parsons
+      platforms:
+        - "linux/amd64"
+    image: dev/parsons:latest
+    entrypoint: ["sleep", "infinity"]
+    volumes:
+      - ../parsons:/src/
+      - .:/app/
+    env_file:
+      - development.env
