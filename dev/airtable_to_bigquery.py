@@ -4,6 +4,8 @@ Exercises to demo...
 1 -- Updating a Parsons connector in real time
 2 -- Using the Docker environment to update the log level
 3 -- Using the interactive shell to update environmental variables
+
+Link to Airtable base: https://airtable.com/app45g5Qp3gEN5QFf/tblQlADbbgtQLsFJu/viwTTgsZ5nKMzOK0z?blocks=hide
 """
 
 import logging
@@ -44,15 +46,24 @@ def run_airtable_to_bigquery(
     airtable__base_key: str = "app45g5Qp3gEN5QFf",
     airtable__table_name: str = "Roster",
     bigquery__target_table: str = "ianferguson_dev.nyk_roster",
+    secret_message: str = None,
 ):
     # Make sure that the current Parsons branch is set to dev
     check_parsons_branch()
+    logger.debug("Parsons branch confirmed")
 
+    logger.info(log_level)
     # Set log level
     # logger.setLevel(level=log_level)
 
+    if secret_message:
+        logger.info(secret_message)
+
     # Instantiate connectors
+    logger.debug("Setting up BigQuery connector...")
     bq = BigQuery(bigquery__app_creds, bigquery__project_id)
+
+    logger.debug("Setting up Airtable connector...")
     at = Airtable(
         base_key=airtable__base_key,
         table_name=airtable__table_name,
@@ -75,10 +86,12 @@ if __name__ == "__main__":
     BIGQUERY_APP_CREDENTIALS = os.environ["BIGQUERY_APP_CREDENTIALS"]
     BIGQUERY_PROJECT_ID = os.environ["BIGQUERY_PROJECT_ID"]
     LOG_LEVEL = os.environ.get("LOG_LEVEL", 20)
+    SECRET_MESSAGE = os.environ.get("SECRET_MESSAGE")
 
     run_airtable_to_bigquery(
         airtable__access_token=AIRTABLE_ACCESS_TOKEN,
         bigquery__app_creds=BIGQUERY_APP_CREDENTIALS,
         bigquery__project_id=BIGQUERY_PROJECT_ID,
         log_level=LOG_LEVEL,
+        secret_message=SECRET_MESSAGE,
     )
