@@ -26,7 +26,9 @@ def get_airtable_data(airtable: Airtable) -> Table:
     Read target Airtable base and return data in a Parsons table
     """
 
-    return airtable.get_records()
+    base_data = airtable.get_records()
+
+    return base_data
 
 
 def write_table_to_bigquery(bq: BigQuery, tbl: Table, target_table: str):
