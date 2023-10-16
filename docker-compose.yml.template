@@ -1,0 +1,31 @@
+# Anatomy of a Docker configuration file...
+services:
+
+  # This is what your image is called
+  local_parsons_dev:
+    build: 
+      
+      # This points to the relative path to Parsons repo
+      context: ../parsons
+      platforms:
+        - "linux/amd64"
+    
+    # Base image (in our case, Parsons)
+    image: dev/parsons:latest
+    
+    # This just tells the container to run
+    # In a web application you could use this to start a Flask server
+    # We want the container to run nothing, so it can await more commands!
+    entrypoint: ["sleep", "infinity"]
+    
+    
+    volumes:
+      # Mount your current Parsons branch to the /src/ directory in the container
+      - ../parsons:/src/
+      
+      # Mount this directory (.) to the /app/ directory in the container
+      - .:/app/
+    
+    # This is your environment file
+    env_file:
+      - development.env
