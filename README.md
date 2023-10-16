@@ -47,3 +47,10 @@ docker compose down
 ```
 
 ## Docker Compose
+We define the configuration of our Docker image using the `docker-compose.yml` file. Some important features...
+
+* `local_parsons_dev` defined on line 2 provides a name for our Docker container - this is important as we'll use it whenever we want to execute code at the command line
+
+* The build context we provide on line 4 is Parsons, and it points to the relative path to our cloned Parsons repository - this is why having Parsons cloned in the same directory as this repo is so essential
+  * Similarly, we **mount** the Parsons repo to our container in line 10 ... this allows us to use the local version of Parsons rather than the live version on PyPI
+  * You can also easily provide a different path to Parsons if you need, you would just need to update lines 4 and 10 with the relevant pathing

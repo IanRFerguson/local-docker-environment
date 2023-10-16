@@ -8,15 +8,14 @@ Exercises to demo...
 Link to Airtable base: https://airtable.com/app45g5Qp3gEN5QFf/tblQlADbbgtQLsFJu/viwTTgsZ5nKMzOK0z?blocks=hide
 """
 
-import logging
+
 import os
 from dev.utils.git_helper import check_parsons_branch
+from dev.dev_logger import logger
 from parsons import Table
 from parsons.google.google_bigquery import GoogleBigQuery as BigQuery
 from parsons.airtable import Airtable
 from parsons.docker_dev.docker_dev import Dev
-
-logger = logging.getLogger(__name__)
 
 ##########
 
@@ -37,7 +36,7 @@ def write_table_to_bigquery(bq: BigQuery, tbl: Table, target_table: str):
     """
 
     logger.debug(f"Writing {tbl.num_rows} rows to {target_table}")
-    bq.copy(tbl=tbl, table_name=target_table, if_exists="drop")
+    # bq.copy(tbl=tbl, table_name=target_table, if_exists="drop")
 
 
 def run_airtable_to_bigquery(
@@ -50,13 +49,12 @@ def run_airtable_to_bigquery(
     bigquery__target_table: str = "ianferguson_dev.nyk_roster",
     secret_message: str = None,
 ):
+    # Set log level
+    logger.setLevel(level=int(log_level))
+
     # Make sure that the current Parsons branch is set to dev
     check_parsons_branch()
     logger.debug("Parsons branch confirmed")
-
-    logger.info(log_level)
-    # Set log level
-    # logger.setLevel(level=log_level)
 
     if secret_message:
         logger.info(secret_message)
@@ -74,7 +72,14 @@ def run_airtable_to_bigquery(
 
     ###
 
+    # Query Airtable base
     airtable_data = get_airtable_data(airtable=at)
+
+    # Apply live updates from docker dev connector
+    docker_connector = Dev(tbl=airtable_data)
+    airtable_data = docker_connector.run()
+
+    # Write table to BigQuery
     write_table_to_bigquery(
         bq=bq, tbl=airtable_data, target_table=bigquery__target_table
     )
