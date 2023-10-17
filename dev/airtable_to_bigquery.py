@@ -10,12 +10,15 @@ Link to Airtable base: https://airtable.com/app45g5Qp3gEN5QFf/tblQlADbbgtQLsFJu/
 
 
 import os
+import logging
 from dev.utils.git_helper import check_parsons_branch
-from dev.dev_logger import logger
+from dev.utils.dev_logger import logger
 from parsons import Table
 from parsons.google.google_bigquery import GoogleBigQuery as BigQuery
 from parsons.airtable import Airtable
 from parsons.docker_dev.docker_dev import Dev
+
+logging.getLogger("parsons.google.google_cloud_storage").setLevel(logging.WARNING)
 
 ##########
 
@@ -27,7 +30,33 @@ def get_airtable_data(airtable: Airtable) -> Table:
 
     base_data = airtable.get_records()
 
-    return base_data
+    # Forgive my PETL wrongdoings
+    data = Table(base_data.unpack_list("College"))
+
+    transform_columns = [
+        "id",
+        "created_time",
+        "birth_date",
+        "country",
+        "exp",
+        "ht",
+        "no",
+        "player",
+        "pos",
+        "wt",
+        "college_0",
+        "college_1",
+    ]
+
+    # Transformations
+    data.match_columns(transform_columns, fuzzy_match=True)
+    data.rename_column("exp", "experience")  # Experience
+    data.rename_column("ht", "height")  # Height
+    data.rename_column("wt", "weight")  # Weight
+    data.rename_column("no", "number")  # Number
+    data.rename_column("pos", "position")  # Position
+
+    return data
 
 
 def write_table_to_bigquery(bq: BigQuery, tbl: Table, target_table: str):
@@ -36,7 +65,8 @@ def write_table_to_bigquery(bq: BigQuery, tbl: Table, target_table: str):
     """
 
     logger.debug(f"Writing {tbl.num_rows} rows to {target_table}")
-    # bq.copy(tbl=tbl, table_name=target_table, if_exists="drop")
+    logger.debug(f"Columns: {', '.join([x for x in tbl.columns])}")
+    resp = bq.copy(tbl=tbl, table_name=target_table, if_exists="drop")
 
 
 def run_airtable_to_bigquery(
@@ -83,6 +113,8 @@ def run_airtable_to_bigquery(
     write_table_to_bigquery(
         bq=bq, tbl=airtable_data, target_table=bigquery__target_table
     )
+
+    logger.info(f"Successfully wrote to {bigquery__target_table}")
 
 
 #####
