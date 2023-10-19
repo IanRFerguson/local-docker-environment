@@ -74,14 +74,14 @@ def run_airtable_to_bigquery(
     airtable__access_token: str,
     bigquery__app_creds: str,
     bigquery__project_id: str,
-    log_level: int = 20,
     airtable__base_key: str = "app45g5Qp3gEN5QFf",
     airtable__table_name: str = "Roster",
     bigquery__target_table: str = "ianferguson_dev.nyk_roster",
     secret_message: str = None,
+    dev: bool = False,
 ):
-    # Set log level
-    logger.setLevel(level=int(log_level))
+    if dev:
+        logger.setLevel(level=logging.DEBUG)
 
     # Make sure that the current Parsons branch is set to dev
     check_parsons_branch()
@@ -126,13 +126,12 @@ if __name__ == "__main__":
     AIRTABLE_ACCESS_TOKEN = os.environ["AIRTABLE_ACCESS_TOKEN"]
     BIGQUERY_APP_CREDENTIALS = os.environ["BIGQUERY_APP_CREDENTIALS"]
     BIGQUERY_PROJECT_ID = os.environ["BIGQUERY_PROJECT_ID"]
-    LOG_LEVEL = os.environ.get("LOG_LEVEL", 20)
+    DEV = os.environ["DEV"].upper() == "TRUE"
     SECRET_MESSAGE = os.environ.get("SECRET_MESSAGE")
 
     run_airtable_to_bigquery(
         airtable__access_token=AIRTABLE_ACCESS_TOKEN,
         bigquery__app_creds=BIGQUERY_APP_CREDENTIALS,
         bigquery__project_id=BIGQUERY_PROJECT_ID,
-        log_level=LOG_LEVEL,
         secret_message=SECRET_MESSAGE,
     )
