@@ -11,6 +11,7 @@ Link to Airtable base: https://airtable.com/app45g5Qp3gEN5QFf/tblQlADbbgtQLsFJu/
 
 import os
 import logging
+from time import sleep
 from dev.utils.git_helper import check_parsons_branch
 from dev.utils.dev_logger import logger
 from parsons import Table
@@ -88,6 +89,7 @@ def run_airtable_to_bigquery(
 
     if secret_message:
         logger.info(secret_message)
+        sleep(10)
 
     # Instantiate connectors
     logger.debug("Setting up BigQuery connector...")
