@@ -80,8 +80,11 @@ def run_airtable_to_bigquery(
     secret_message: str = None,
     dev: bool = False,
 ):
+    logger.info(f"Running in dev: {dev}")
     if dev:
         logger.setLevel(level=logging.DEBUG)
+        bigquery__target_table = f"{bigquery__target_table}__dev"
+        logger.debug(f"Target table updated to {bigquery__target_table}...")
 
     # Make sure that the current Parsons branch is set to dev
     check_parsons_branch()
@@ -134,4 +137,5 @@ if __name__ == "__main__":
         bigquery__app_creds=BIGQUERY_APP_CREDENTIALS,
         bigquery__project_id=BIGQUERY_PROJECT_ID,
         secret_message=SECRET_MESSAGE,
+        dev=DEV,
     )
